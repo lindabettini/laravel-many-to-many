@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Tag;
 use App\Models\Category;
 use Illuminate\Support\Str;
 
@@ -29,8 +30,9 @@ class PostController extends Controller
     public function create()
     {
         $post = new Post();
+        $tags = Tag::all();
         $categories = Category::all();
-        return view('admin.posts.create', compact('post', 'categories'));
+        return view('admin.posts.create', compact('post', 'tags', 'categories'));
     }
 
     /**
@@ -45,7 +47,9 @@ class PostController extends Controller
             'title' => 'required|string|unique:posts|min:5|max:50',
             'content' => 'required|string',
             'image' => 'nullable|url',
-            'category_id' => 'nullable|exists:categories,id' //<Controllo che esista dentro la tab. Categories nella colonna dell'id
+            'category_id' => 'nullable|exists:categories,id', //<Controllo che esista dentro la tab. Categories nella colonna dell'id
+            'tags' => 'nullable|exists:tags,id',
+            'tags.exixst' => 'Ino dei tag selezionati non è valido'
         ], [
             'title.required' => 'Il titolo è obbligatorio.',
             'title.min' => 'La lunghezza minima del titolo è di 5 caratteri.',
@@ -86,7 +90,8 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::all();
-        return view('admin.posts.edit', compact('post', 'categories'));
+        $tags = Tag::all();
+        return view('admin.posts.edit', compact('post', 'tags', 'categories'));
     }
 
     /**
@@ -102,7 +107,8 @@ class PostController extends Controller
             'title' => 'required|string|unique:posts|min:5|max:50',
             'content' => 'required|string',
             'image' => 'nullable|url',
-            'category_id' => 'nullable|exists:categories,id' //<Controllo che esista dentro la tab. Categories nella colonna dell'id
+            'category_id' => 'nullable|exists:categories,id',
+            'tags' => 'nullable|exists:tags,id' //<Controllo che esista dentro la tab. Categories nella colonna dell'id
 
         ], [
             'title.required' => 'Il titolo è obbligatorio.',
@@ -111,7 +117,8 @@ class PostController extends Controller
             'title.unique' => "Esiste gia' un post dal titolo ''$request->title''.",
             'content.required' => 'Scrivi qualcosa nel post.',
             'image.url' => 'Url immagine non valido.',
-            'category_id.exists' => 'Categoria non valida.'
+            'category_id.exists' => 'Categoria non valida.',
+            'tags.exixst' => 'Ino dei tag selezionati non è valido'
         ]);
 
         $data = $request->all();
