@@ -8,6 +8,8 @@ use App\Models\Post;
 use App\Models\Tag;
 use App\Models\Category;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+
 
 class PostController extends Controller
 {
@@ -41,15 +43,15 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Post $post)
     {
 
         $request->validate([
-            'title' => 'required|string|unique:posts|min:5|max:50',
+            'title' => ['required', 'string', Rule::unique('posts')->ignore($post->id), 'min:5', 'max:50'],
             'content' => 'required|string',
             'image' => 'nullable|url',
             'category_id' => 'nullable|exists:categories,id', //<Controllo che esista dentro la tab. Categories nella colonna dell'id
-            'tags' => 'nullable|exists:tags,id',
+            'tags' => 'nullable|exists:tags,id'
         ], [
             'title.required' => 'Il titolo è obbligatorio.',
             'title.min' => 'La lunghezza minima del titolo è di 5 caratteri.',
@@ -58,15 +60,19 @@ class PostController extends Controller
             'content.required' => 'Scrivi qualcosa nel post.',
             'image.url' => 'Url immagine non valido.',
             'category_id.exists' => 'Categoria non valida.',
-            'tags.exists' => 'Uno dei tag selezionati non è valido',
+            'tags.exists' => 'Uno dei tag selezionati non è valido'
         ]);
 
         $data = $request->all();
         $post = new Post();
-        $data['slug'] = Str::slug($request->title, '-'); //<vedi alternativa dopo fill
+
+
         $post->fill($data);
-        //< $post->slug = Str::slug($post->title, '-'); e poi levo slug dalla $fillable di Model Post
+        $post->slug = Str::slug($post->title, '-');
         $post->save();
+
+        // Una volta creato il post, aggancio EVENTUALI tag
+        if (array_key_exists('tags', $data)) $post->tags()->attach($data['tags']);
 
         return redirect()->route('admin.posts.index')->with('message', "Post creato con successo")->with('type', 'success');
     }
@@ -91,8 +97,9 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::all();
+        $post_tags_ids = $post->tags->pluck('id')->toArray(); // Prendo gli id dei tag di questo post
         $tags = Tag::all();
-        return view('admin.posts.edit', compact('post', 'tags', 'categories'));
+        return view('admin.posts.edit', compact('post', 'tags', 'categories', 'post_tags_ids'));
     }
 
     /**
@@ -105,7 +112,7 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $request->validate([
-            'title' => 'required|string|unique:posts|min:5|max:50',
+            'title' => ['required', 'string', Rule::unique('posts')->ignore($post->id), 'min:5', 'max:50'],
             'content' => 'required|string',
             'image' => 'nullable|url',
             'category_id' => 'nullable|exists:categories,id',
@@ -136,6 +143,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        if (count($post->tags)) $post->tags()->detach();
         $post->delete();
         return redirect()->route('admin.posts.index')->with('message', "Il tuo post ''$post->title'' è stato eliminato")->with('type', 'danger');
     }

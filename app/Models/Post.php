@@ -12,7 +12,7 @@ class Post extends Model
     {
         return $this->belongsTo('App\Models\Category');
     }
-    public function posts()
+    public function tags()
     {
         return $this->belongsToMany('App\Models\Tag');
     }

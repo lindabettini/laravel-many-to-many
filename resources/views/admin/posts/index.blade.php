@@ -17,6 +17,7 @@
       <th scope="col">#</th>
       <th scope="col">Title</th>
       <th scope="col">Categoria</th>
+      <th scope="col">Tags</th>
       <th scope="col">Creato il</th>
       <th scope="col">Actions</th>
     </tr>
@@ -27,6 +28,7 @@
       <th scope="row">{{ $post->id }}</th>
       <td>{{ $post->title }}</td>
       <td><span class="badge rounded-pill @if($post->category) bg-{{$post->category->color}} @endif">@if($post->category){{ $post->category->label }} </span> @else - @endif</td>
+      <td><span class="badge rounded-pill @if($post->tag) bg-{{$post->tag->color}} @endif">@if($post->tag){{ $post->tag->label }} </span> @else - @endif</td>
       <td>{{$post->created_at}}</td>
       <td class="d-flex justify-content-end align-items-start">
         <a href="{{route('admin.posts.show', $post->id)}}" class="btn btn-primary mr-2"><i class="fa-solid fa-eye mr-2"></i>Vedi</a>
