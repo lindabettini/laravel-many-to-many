@@ -15,9 +15,9 @@ class TagsTableSeeder extends Seeder
     {
         $tags_names = ['FrontEnd', 'Backend', 'FullStack', 'UI/UX', 'Design', 'CMS'];
 
-        foreach ($tags_names as $tag) {
+        foreach ($tags_names as $tag_label) {
             $tag = new Tag();
-            $tag->label = $tag;
+            $tag->label = $tag_label;
             $tag->color = $faker->hexColor();
             $tag->save();
         }
