@@ -11,5 +11,5 @@ imageInput.addEventListener('change', () => {
     reader.onload = (e) => {
       imagePreview.setAttribute('src', e.target.result);
     }
-  }
+  }else imagePreview.setAttribute('src', placeholder);
 })
