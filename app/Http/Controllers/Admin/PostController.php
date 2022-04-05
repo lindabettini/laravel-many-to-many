@@ -9,6 +9,9 @@ use App\Models\Tag;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+//todo use Illuminate\Support\Facades\Auth; per isPublished
+//todo use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 class PostController extends Controller
@@ -49,7 +52,7 @@ class PostController extends Controller
         $request->validate([
             'title' => ['required', 'string', Rule::unique('posts')->ignore($post->id), 'min:5', 'max:50'],
             'content' => 'required|string',
-            'image' => 'nullable|file|image',
+            'image' => 'nullable|image',
             'category_id' => 'nullable|exists:categories,id', //<Controllo che esista dentro la tab. Categories nella colonna dell'id
             'tags' => 'nullable|exists:tags,id'
         ], [
@@ -58,8 +61,7 @@ class PostController extends Controller
             'title.max' => 'La lunghezza massima del titolo è di 50 caratteri.',
             'title.unique' => "Esiste gia' un post dal titolo ''$request->title''.",
             'content.required' => 'Scrivi qualcosa nel post.',
-            'image.file' => 'File non valido.',
-            'image.image' => 'Selezione un file immagine.',
+            'image.image' => 'Seleziona un file immagine.',
             'category_id.exists' => 'Categoria non valida.',
             'tags.exists' => 'Uno dei tag selezionati non è valido'
         ]);
@@ -67,9 +69,15 @@ class PostController extends Controller
         $data = $request->all();
         $post = new Post();
 
-
         $post->fill($data);
+
+        if (array_key_exists('image', $data)) {
+            $img_url = Storage::put('post_images', $data['image']);
+            $post->image = $img_url;
+        }
+
         $post->slug = Str::slug($post->title, '-');
+
         $post->save();
 
         // Una volta creato il post, aggancio EVENTUALI tag
@@ -115,7 +123,7 @@ class PostController extends Controller
         $request->validate([
             'title' => ['required', 'string', Rule::unique('posts')->ignore($post->id), 'min:5', 'max:50'],
             'content' => 'required|string',
-            'image' => 'nullable|file|file|image',
+            'image' => 'nullable|image',
             'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|exists:tags,id' //<Controllo che esista dentro la tab. Categories nella colonna dell'id
 
@@ -125,8 +133,7 @@ class PostController extends Controller
             'title.max' => 'La lunghezza massima del titolo è di 50 caratteri.',
             'title.unique' => "Esiste gia' un post dal titolo ''$request->title''.",
             'content.required' => 'Scrivi qualcosa nel post.',
-            'image.file' => 'File non valido.',
-            'image.image' => 'Selezione un file immagine.',
+            'image.image' => 'Seleziona un file immagine.',
             'category_id.exists' => 'Categoria non valida.',
             'tags.exists' => 'Uno dei tag selezionati non è valido'
         ]);
