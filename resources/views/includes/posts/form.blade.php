@@ -69,7 +69,11 @@
       </div>
 
       <div class="col-3">
-        <img src="{{ old('image', $post->image) ?? 'https://socialistmodernism.com/wp-content/uploads/2017/07/placeholder-image.png?w=640' }}" class="img-fluid" id="preview" alt="placeholder">
+        @if($post->image)
+        <img class="img-fluid" src="{{ asset("storage/$post->image")}}" alt="{{ $post->slug }}" id="preview" />
+        @else
+        <img src="https://socialistmodernism.com/wp-content/uploads/2017/07/placeholder-image.png" alt="preview" id="preview" class="img-fluid" />
+        @endif
       </div>
       <div class="col-12">
         <hr>

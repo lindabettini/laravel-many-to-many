@@ -63,7 +63,7 @@ class PostController extends Controller
             'content.required' => 'Scrivi qualcosa nel post.',
             'image.file' => 'Seleziona un file immagine.',
             'category_id.exists' => 'Categoria non valida.',
-            'tags.exists' => 'Uno dei tag selezionati non è valido'
+            'tags.exists' => 'Uno dei tag selezionati non è valido.'
         ]);
 
         $data = $request->all();
@@ -83,7 +83,8 @@ class PostController extends Controller
         // Una volta creato il post, aggancio EVENTUALI tag
         if (array_key_exists('tags', $data)) $post->tags()->attach($data['tags']);
 
-        return redirect()->route('admin.posts.index')->with('message', "Post creato con successo")->with('type', 'success');
+        return redirect()->route('admin.posts.show', $post);
+        //° OPPURE TORNO A INDEX CON MESSAGGIO SUCCESS: return redirect()->route('admin.posts.index')->with('message', "Post creato con successo")->with('type', 'success');
     }
 
     /**
@@ -135,11 +136,19 @@ class PostController extends Controller
             'content.required' => 'Scrivi qualcosa nel post.',
             'image.file' => 'Seleziona un file immagine.',
             'category_id.exists' => 'Categoria non valida.',
-            'tags.exists' => 'Uno dei tag selezionati non è valido'
+            'tags.exists' => 'Uno dei tag selezionati non è valido.'
         ]);
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->title, '-');
+
+        if (array_key_exists('image', $data)) {
+            if ($post->image) Storage::delete($post->image); //<Cancello l'immagine vecchia dal mio storage e sostituisco con quella nuova
+
+            $img_url = Storage::put('post_images', $data['image']);
+            $post->image = $img_url;
+        }
+
         $post->update($data);
         return redirect()->route('admin.posts.show', $post);
     }
@@ -152,7 +161,13 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        //<Prima elimo eventuali relazioni
         if (count($post->tags)) $post->tags()->detach();
+
+        //<Poi elimino eventuali immagini in storage di post cancellati
+        if ($post->image) Storage::delete($post->image);
+
+        //<E infine...
         $post->delete();
         return redirect()->route('admin.posts.index')->with('message', "Il tuo post ''$post->title'' è stato eliminato")->with('type', 'danger');
     }
