@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Tag;
+use App\Models\User;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-//todo use Illuminate\Support\Facades\Auth; per isPublished
-//todo use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use App\Mail\PublishedPostMail;
+use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
 {
@@ -67,21 +69,30 @@ class PostController extends Controller
         ]);
 
         $data = $request->all();
+        $user = Auth::user();
         $post = new Post();
-
-        $post->fill($data);
 
         if (array_key_exists('image', $data)) {
             $img_url = Storage::put('post_images', $data['image']);
             $post->image = $img_url;
         }
 
+        $post->fill($data);
         $post->slug = Str::slug($post->title, '-');
+        $post->user_id = $user->id;
 
+        if (array_key_exists('is_published', $data)) {
+            $post->is_published = 1;
+        }
         $post->save();
 
-        // Una volta creato il post, aggancio EVENTUALI tag
+        //<Una volta creato il post, aggancio EVENTUALI tag
         if (array_key_exists('tags', $data)) $post->tags()->attach($data['tags']);
+
+        //<Mando email di conferma 
+        $mail = new PublishedPostMail();
+        $receiver = Auth::user()->email;
+        Mail::to($receiver)->send($mail);
 
         return redirect()->route('admin.posts.show', $post);
         //° OPPURE TORNO A INDEX CON MESSAGGIO SUCCESS: return redirect()->route('admin.posts.index')->with('message', "Post creato con successo")->with('type', 'success');
@@ -140,6 +151,8 @@ class PostController extends Controller
         ]);
 
         $data = $request->all();
+
+        $data['is_published'] = array_key_exists('is_published', $data) ? 1 : 0;
         $data['slug'] = Str::slug($request->title, '-');
 
         if (array_key_exists('image', $data)) {
@@ -150,7 +163,12 @@ class PostController extends Controller
         }
 
         $post->update($data);
-        return redirect()->route('admin.posts.show', $post);
+
+        //< devo fare in modo che in update salvi i tag cambiati
+        if (!array_key_exists('tags', $data)) $post->tags()->detach();
+        else $post->tags()->sync($data['tags']);
+
+        return redirect()->route('admin.posts.show', $post->id)->with('message', "$post->title aggiornato con successo!")->with('type', 'success');
     }
 
     /**

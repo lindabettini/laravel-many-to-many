@@ -10,8 +10,20 @@ class Post extends Model
 
     public function category()
     {
+        /** 
+         * Serve per fare $post->category
+         */
         return $this->belongsTo('App\Models\Category');
     }
+
+    public function author()
+    {
+        /** 
+         * Serve per fare $post->user
+         */
+        return $this->belongsTo('App\User', 'user_id', 'id');
+    }
+
     public function tags()
     {
         return $this->belongsToMany('App\Models\Tag');

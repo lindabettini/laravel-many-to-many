@@ -1,5 +1,6 @@
 <?php
 
+use App\User;
 use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Database\Seeder;
@@ -17,6 +18,7 @@ class PostSeeder extends Seeder
     public function run(Faker $faker)
     {
         $category_ids = Category::pluck('id')->toArray();
+        $user_ids = User::pluck('id')->toArray();
 
         for ($i = 0; $i < 5; $i++) {
             $post = new Post();
