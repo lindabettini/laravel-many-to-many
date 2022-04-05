@@ -9,7 +9,7 @@
 @endif
 
 @if($post->exists)
-<form action="{{route('admin.posts.update', $post->id)}}" method="POST">
+<form action="{{route('admin.posts.update', $post->id)}}" method="POST" enctype="multipart/form-data">
   @method('PUT')
   @else
   <form action="{{route('admin.posts.store')}}" method="POST">
@@ -56,10 +56,10 @@
         </div>
         @enderror
       </div>
-      <div class="col-10">
+      <div class="col-9">
         <div class="form-group">
-          <label for="image" class="form-label">Inserisci url immagine:</label>
-          <input type="url" name="image" class="form-control @error('image') is-invalid @enderror" id="image" placeholder="Url dell'immagine" value="{{old('image', $post->image)}}">
+          <label for="image" class="form-label">Carica immagine:</label>
+          <input type="file" name="image" class="form-control-file @error('image') is-invalid @enderror" id="image" placeholder="Url dell'immagine">
         </div>
         @error('image')
         <div class=" invalid-feedback">
@@ -68,7 +68,7 @@
         @enderror
       </div>
 
-      <div class="col-2">
+      <div class="col-3">
         <img src="{{ old('image', $post->image) ?? 'https://socialistmodernism.com/wp-content/uploads/2017/07/placeholder-image.png?w=640' }}" class="img-fluid" id="preview" alt="placeholder">
       </div>
       <div class="col-12">
