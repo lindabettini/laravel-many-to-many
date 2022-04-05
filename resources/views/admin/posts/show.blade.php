@@ -15,7 +15,7 @@
 
 <div class="clearfix">
   @if($post->image)
-  <img src="{{ asset("storage/$post->image")}}" alt="{{ $post->slug }}" class="float-left mr-2">
+  <img class="float-left mr-2 img-fluid" src="{{ asset("storage/$post->image")}}" alt="{{ $post->slug }}">
   @endif
   <p>{{$post->content}}</p>
 </div>
