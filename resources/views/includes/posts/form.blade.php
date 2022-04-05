@@ -56,6 +56,7 @@
         </div>
         @enderror
       </div>
+      <!-- INPUT FILE IMMAGINE -->
       <div class="col-9">
         <div class="form-group">
           <label for="image" class="form-label">Carica immagine:</label>
@@ -67,7 +68,7 @@
         </div>
         @enderror
       </div>
-
+      <!-- PREVIEW IMMAGINE -->
       <div class="col-3">
         @if($post->image)
         <img class="img-fluid" src="{{ asset("storage/$post->image")}}" alt="{{ $post->slug }}" id="preview" />
