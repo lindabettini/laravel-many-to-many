@@ -52,7 +52,7 @@ class PostController extends Controller
         $request->validate([
             'title' => ['required', 'string', Rule::unique('posts')->ignore($post->id), 'min:5', 'max:50'],
             'content' => 'required|string',
-            'image' => 'nullable|image',
+            'image' => 'nullable|file',
             'category_id' => 'nullable|exists:categories,id', //<Controllo che esista dentro la tab. Categories nella colonna dell'id
             'tags' => 'nullable|exists:tags,id'
         ], [
@@ -61,7 +61,7 @@ class PostController extends Controller
             'title.max' => 'La lunghezza massima del titolo è di 50 caratteri.',
             'title.unique' => "Esiste gia' un post dal titolo ''$request->title''.",
             'content.required' => 'Scrivi qualcosa nel post.',
-            'image.image' => 'Seleziona un file immagine.',
+            'image.file' => 'Seleziona un file immagine.',
             'category_id.exists' => 'Categoria non valida.',
             'tags.exists' => 'Uno dei tag selezionati non è valido'
         ]);
@@ -123,7 +123,7 @@ class PostController extends Controller
         $request->validate([
             'title' => ['required', 'string', Rule::unique('posts')->ignore($post->id), 'min:5', 'max:50'],
             'content' => 'required|string',
-            'image' => 'nullable|image',
+            'image' => 'nullable|file',
             'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|exists:tags,id' //<Controllo che esista dentro la tab. Categories nella colonna dell'id
 
@@ -133,7 +133,7 @@ class PostController extends Controller
             'title.max' => 'La lunghezza massima del titolo è di 50 caratteri.',
             'title.unique' => "Esiste gia' un post dal titolo ''$request->title''.",
             'content.required' => 'Scrivi qualcosa nel post.',
-            'image.image' => 'Seleziona un file immagine.',
+            'image.file' => 'Seleziona un file immagine.',
             'category_id.exists' => 'Categoria non valida.',
             'tags.exists' => 'Uno dei tag selezionati non è valido'
         ]);
